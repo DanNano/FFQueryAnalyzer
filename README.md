@@ -23,14 +23,20 @@ These instructions will guide you through setting up the project locally.
    Change into the project's `app` directory:
 
    cd FFQueryAnalyzer/app
-
-3. **Install Dependencies**
+   
+4. **Set USERNAME and PASSWORD**
+   In FFQueryAnalyzer/app create a file, .env, with your gatorlink username and your oracle password in the following format
+   
+   DB_USER=yourusername
+   DB_PASSWORD=yourpassword
+   
+6. **Install Dependencies**
 
    Install the necessary dependencies by running:
 
    npm install
 
-4. **Start the Application**
+7. **Start the Application**
 
    Start the application with:
 
