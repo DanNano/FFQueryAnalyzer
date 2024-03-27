@@ -9,6 +9,7 @@ These instructions will guide you through setting up the project locally.
 ### Prerequisites
 
 - Ensure you have Node.js installed on your machine.
+- Connect to the Gatorlink VPN using AnyConnect.
 
 ### Installation
 
