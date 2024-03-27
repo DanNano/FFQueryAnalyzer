@@ -34,7 +34,7 @@ These instructions will guide you through setting up the project locally.
 
    Start the application with:
 
-   npm start
+   npm run dev
 
    This will launch the app and automatically open it in your default web browser. If it doesn't open automatically, you can manually navigate to http://localhost:3000 in your browser.
 
