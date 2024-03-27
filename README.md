@@ -29,6 +29,7 @@ These instructions will guide you through setting up the project locally.
    In FFQueryAnalyzer/app create a file, .env, with your gatorlink username and your oracle password in the following format
    
    DB_USER=yourusername
+
    DB_PASSWORD=yourpassword
    
 6. **Install Dependencies**
