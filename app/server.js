@@ -59,7 +59,7 @@ app.get('/api/player-stats', async (req, res) => {
     connection = await oracledb.getConnection(dbConfig);
     const playerId = req.query.playerid || '00-0032765'; // Default player ID if none provided
     const result = await connection.execute(`
-      SELECT p.name, p.playerid, p.position, ps.year,
+      SELECT p.name, p.playerid, p.position, ps.year, ps.team,
         ROUND((
           (ps.passingyards * 0.04) + 
           (ps.passingtds * 4) - 
