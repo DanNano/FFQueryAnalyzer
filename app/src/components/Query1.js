@@ -9,6 +9,9 @@ function Query1() {
     const [playerId, setPlayerId] = useState('');
     const [playerInfo, setPlayerInfo] = useState(null);
     const [chartData, setChartData] = useState({});
+    const [name, setName] = useState('');
+    const [playerDetails, setPlayerDetails] = useState(null);
+    const [error, setError] = useState('');
 
     const fetchData = () => {
         fetch(`/api/player-stats?playerid=${playerId}`)
@@ -46,6 +49,30 @@ function Query1() {
             });
     };
 
+    const fetchPlayerDetails = () => {
+        fetch(`/api/player-by-name?name=${encodeURIComponent(name)}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch player details');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.length === 0) {
+                    setError('No player found');
+                    setPlayerDetails(null);
+                } else {
+                    setPlayerDetails(data);
+                    setError('');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                setError('Failed to fetch data');
+                setPlayerDetails(null);
+            });
+    };
+
     return (
         <div>
             <h1>Player Fantasy Points Per Game</h1>
@@ -56,6 +83,29 @@ function Query1() {
                 placeholder="Enter Player ID"
             />
             <button onClick={fetchData}>Get Player Stats</button>
+
+            <h2>Search Player by Name</h2>
+            <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Enter Player Name"
+            />
+            <button onClick={fetchPlayerDetails}>Search</button>
+            {error && <p>{error}</p>}
+            {playerDetails && (
+                <div>
+                    <h3>Player Details</h3>
+                    <ul>
+                        {playerDetails.map((player, index) => (
+                            <li key={index}>
+                                Name: {player.NAME}, Player ID: {player.PLAYERID}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+
             {playerInfo && (
                 <div>
                     <h2>Player Information</h2>

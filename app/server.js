@@ -90,6 +90,38 @@ app.get('/api/player-stats', async (req, res) => {
     }
   }
 });
+// Endpoint to get player details by name, defaulting to 'Michael Thomas' if no name is provided
+app.get('/api/player-by-name', async (req, res) => {
+  let connection;
+  try {
+    connection = await oracledb.getConnection(dbConfig);
+    const playerName = req.query.name || 'Michael Thomas'; // Default player name if none provided
+    const result = await connection.execute(
+      `SELECT p.name, p.playerid
+       FROM DLAFORCE.player p
+       WHERE p.name = :name`, 
+      { name: playerName }, // Use parameter binding to safely insert the name
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+    console.log(result);
+    if (result.rows.length > 0) {
+      res.json(result.rows);
+    } else {
+      res.status(404).send({ message: 'Player not found' });
+    }
+  } catch (err) {
+    console.error('Error on database execution: ', err);
+    res.status(500).send({ message: 'Error connecting to the database' });
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error('Error closing connection: ', err);
+      }
+    }
+  }
+});
 
 // ---------------------------------------------------------------------------------------------------------------------------
 
