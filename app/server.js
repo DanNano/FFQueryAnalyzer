@@ -52,9 +52,48 @@ app.get('/api/total-rows', async (req, res) => {
   }
 });
 // ---------------------------------------------------------------------------------------------------------------------------
+// Endpoint to get fantasy points per game for a specific player by their player ID, Query1
+app.get('/api/player-stats', async (req, res) => {
+  let connection;
+  try {
+    connection = await oracledb.getConnection(dbConfig);
+    const playerId = req.query.playerid || '00-0032765'; // Default player ID if none provided
+    const result = await connection.execute(`
+      SELECT p.name, p.playerid, p.position, ps.year,
+        ROUND((
+          (ps.passingyards * 0.04) + 
+          (ps.passingtds * 4) - 
+          (ps.intsthrown * 2) + 
+          (ps.rushingyards * 0.1) + 
+          (ps.rushingtds * 6) + 
+          (ps.receivingyards * 0.1) + 
+          (ps.receivingtds * 6) - 
+          (ps.rushingfumbles * 2) - 
+          (ps.receivingfumbles * 2)
+        ) / ps.gamesplayed, 2) AS fantasypointspergame
+      FROM DLAFORCE.player p
+      JOIN DLAFORCE.playerstats ps ON p.playerid = ps.playerid
+      WHERE p.playerid = :playerId
+    `, [playerId], { outFormat: oracledb.OUT_FORMAT_OBJECT });
+    console.log(result);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error on database execution: ', err);
+    res.status(500).send({ message: 'Error connecting to the database' });
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error('Error closing connection: ', err);
+      }
+    }
+  }
+});
+
+// ---------------------------------------------------------------------------------------------------------------------------
 
 /* Add other SQL query endpoints here */
-// Query1
 // Query2
 // Query3
 // Query4
