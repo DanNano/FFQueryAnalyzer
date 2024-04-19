@@ -23,7 +23,7 @@ function Query1() {
                         playerid: data[0].PLAYERID,
                         position: data[0].POSITION
                     });
-                    const labels = data.map(item => item.YEAR);
+                    const labels = data.map(item => `${item.YEAR}, ${item.TEAM}`);
                     const dataPoints = data.map(item => item.FANTASYPOINTSPERGAME);
                     setChartData({
                         labels,
@@ -76,22 +76,18 @@ function Query1() {
     return (
         <div>
             <h1>Player Fantasy Points Per Game</h1>
-            <input
-                type="text"
-                value={playerId}
-                onChange={(e) => setPlayerId(e.target.value)}
-                placeholder="Enter Player ID"
-            />
-            <button onClick={fetchData}>Get Player Stats</button>
-
-            <h2>Search Player by Name</h2>
-            <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Enter Player Name"
-            />
-            <button onClick={fetchPlayerDetails}>Search</button>
+    
+            {/* Search by Player Name */}
+            <div>
+                <h2>Search Player by Name</h2>
+                <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Enter Player Name"
+                />
+                <button onClick={fetchPlayerDetails}>Search</button>
+            </div>
             {error && <p>{error}</p>}
             {playerDetails && (
                 <div>
@@ -105,7 +101,18 @@ function Query1() {
                     </ul>
                 </div>
             )}
-
+    
+            {/* Input for Player ID and Fetch Button */}
+            <div>
+                <input
+                    type="text"
+                    value={playerId}
+                    onChange={(e) => setPlayerId(e.target.value)}
+                    placeholder="Enter Player ID"
+                />
+                <button onClick={fetchData}>Get Player Stats</button>
+            </div>
+    
             {playerInfo && (
                 <div>
                     <h2>Player Information</h2>
@@ -114,6 +121,7 @@ function Query1() {
                     <p>Position: {playerInfo.position}</p>
                 </div>
             )}
+            
             {chartData.labels && (
                 <div style={{ width: '70%', margin: 'auto' }}>
                     <h2>Fantasy Points Per Game by Year</h2>
@@ -122,6 +130,7 @@ function Query1() {
             )}
         </div>
     );
+    
 }
 
 export default Query1;
