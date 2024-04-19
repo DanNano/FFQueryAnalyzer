@@ -38,8 +38,9 @@ These instructions will guide you through setting up the project locally.
    Install the necessary dependencies by running:
 
    npm install
+   npm install react-chartjs-2 chart.js
 
-7. **Start the Application**
+8. **Start the Application**
 
    Start the application with:
 
