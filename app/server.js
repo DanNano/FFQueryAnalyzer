@@ -200,6 +200,37 @@ app.get('/api/player-goalline-carry-percentage', async (req, res) => {
 // ---------------------------------------------------------------------------------------------------------------------------
 /* Add other SQL query endpoints here */
 // Query2
+app.get('/api/player-snap-count', async (req, res) => {
+    let connection;
+    try {
+        connection = await oracledb.getConnection(dbConfig);
+        const playerId = req.query.playerid || '00-0032765'; // Default player ID if none provided
+        const result = await connection.execute(`
+      select p.name, p.playerid, p.position, substr(psc.gameid, 1, 4) as year, ps.team, to_char(round(sum(psc.snapcountpercentage * 100) / count(*), 2), '999.99') || '%' as snapcountpercentagepergame
+      from dlaforce.player p
+      join dlaforce.playersnapcounts psc on p.playerid = psc.playerid
+      join dlaforce.playerstats ps on p.playerid = ps.playerid
+      where p.playerid = :playerId /* placeholder id, this will need to be fed into the query by the app */
+      group by p.name, p.playerid, p.position, substr(psc.gameid, 1, 4), ps.team
+      order by year
+
+    `, [playerId], { outFormat: oracledb.OUT_FORMAT_OBJECT });
+        console.log(result);
+        res.json(result.rows);
+    } catch (err) {
+        console.error('Error on database execution: ', err);
+        res.status(500).send({ message: 'Error connecting to the database' });
+    } finally {
+        if (connection) {
+            try {
+                await connection.close();
+            } catch (err) {
+                console.error('Error closing connection: ', err);
+            }
+        }
+    }
+});
+
 // Query4
 // Query5
 
