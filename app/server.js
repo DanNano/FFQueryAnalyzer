@@ -97,9 +97,11 @@ app.get('/api/player-by-name', async (req, res) => {
     connection = await oracledb.getConnection(dbConfig);
     const playerName = req.query.name || 'Michael Thomas'; // Default player name if none provided
     const result = await connection.execute(
-      `SELECT p.name, p.playerid
+      `SELECT p.name, p.playerid, p.position, MIN(ps.year) as firstyear, MAX(ps.year) as lastyear
        FROM DLAFORCE.player p
-       WHERE p.name = :name`, 
+       JOIN DLAFORCE.playerstats ps ON p.playerid = ps.playerid
+       WHERE p.name = :name
+       GROUP BY p.name, p.playerid, p.position`,
       { name: playerName }, // Use parameter binding to safely insert the name
       { outFormat: oracledb.OUT_FORMAT_OBJECT }
     );

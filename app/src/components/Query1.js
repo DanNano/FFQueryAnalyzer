@@ -95,7 +95,7 @@ function Query1() {
                     <ul>
                         {playerDetails.map((player, index) => (
                             <li key={index}>
-                                Name: {player.NAME}, Player ID: {player.PLAYERID}
+                                {player.NAME}, {player.PLAYERID}, {player.POSITION}, {player.FIRSTYEAR} - {player.LASTYEAR}
                             </li>
                         ))}
                     </ul>
