@@ -74,7 +74,7 @@ function Query3() {
 
     return (
         <div>
-            <h1>Player Information and Target Share</h1>
+            <h1>Player Target Share</h1>
 
             {/* Search by Player Name */}
             <div>
