@@ -71,7 +71,7 @@ function Query5() {
 
     return (
         <div>
-            <h1>Player Information and Target Share</h1>
+            <h1>Player Touchdown Percentage</h1>
             <div>
                 <h2>Search Player by Name</h2>
                 <input

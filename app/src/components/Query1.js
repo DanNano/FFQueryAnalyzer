@@ -12,6 +12,7 @@ function Query1() {
     const [name, setName] = useState('');
     const [playerDetails, setPlayerDetails] = useState(null);
     const [error, setError] = useState('');
+    const [topPlayersData, setTopPlayersData] = useState([]);
 
     const fetchData = () => {
         fetch(`/api/player-stats?playerid=${playerId}`)
@@ -73,6 +74,36 @@ function Query1() {
             });
     };
 
+    const fetchTopPlayers = () => {
+        fetch(`/api/top-players-stats`)
+            .then(response => response.json())
+            .then(data => {
+                const years = [2017, 2018, 2019, 2020, 2021, 2022];
+                let players = {};
+    
+                data.forEach(player => {
+                    if (!players[player.NAME]) {
+                        players[player.NAME] = {
+                            label: player.NAME,
+                            data: Array(years.length).fill(null),
+                            borderColor: `#${Math.floor(Math.random()*16777215).toString(16)}`,
+                            fill: false,
+                            tension: 0.1
+                        };
+                    }
+                    const index = years.indexOf(player.YEAR);
+                    if (index !== -1) {
+                        players[player.NAME].data[index] = player.FANTASYPOINTSPERGAME;
+                    }
+                });
+    
+                setTopPlayersData({
+                    labels: years,
+                    datasets: Object.values(players)
+                });
+            });
+    };
+
     return (
         <div>
             <h1>Player Fantasy Points Per Game</h1>
@@ -128,6 +159,35 @@ function Query1() {
                     <Line data={chartData} />
                 </div>
             )}
+
+        <button onClick={fetchTopPlayers}>Or Display Recent Top Players</button>
+                {topPlayersData.labels && (
+                    <div style={{ width: '70%', margin: 'auto' }}>
+                        <h2>Top Fantasy Points Per Game by Year</h2>
+                        <Line data={topPlayersData} options={{
+                            scales: {
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Year'
+                                    }
+                                },
+                                y: {
+                                    title: {
+                                        display: true,
+                                        text: 'Fantasy Points Per Game'
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    position: 'top'
+                                }
+                            }
+                        }} />
+                    </div>
+                )}
         </div>
     );
     
