@@ -312,6 +312,37 @@ app.get('/api/player-snap-count', async (req, res) => {
 
 // Query5
 
+app.get('/api/player-TD', async (req, res) => {
+    let connection;
+    try {
+        connection = await oracledb.getConnection(dbConfig);
+        const playerId = req.query.playerid || '00-0031408'; // Default player ID if none provided
+        const result = await connection.execute(`
+        select p.name, p.playerid, p.position, ps.year, ps.team, to_char(round((count(case when pl.tdplayerid = p.playerid then 1 end) / count(case when pl.tdplayerid is not null then 1 end)) * 100, 2), '999.99') || '%' as touchdownpercentage
+        from dlaforce.player p
+        join dlaforce.playerstats ps on p.playerid = ps.playerid
+        join dlaforce.play pl on ps.team = pl.possessingteam and substr(pl.gameid, 1, 4) = ps.year
+        where p.playerid = :playerId and exists (select 1 from dlaforce.playersnapcounts psc where psc.playerid = p.playerid and psc.gameid = pl.gameid) /* placeholder id, this will need to be fed into the query by the app */
+        group by p.name, p.playerid, p.position, ps.year, ps.team
+        order by ps.year
+
+    `, [playerId], { outFormat: oracledb.OUT_FORMAT_OBJECT });
+        console.log(result);
+        res.json(result.rows);
+    } catch (err) {
+        console.error('Error on database execution: ', err);
+        res.status(500).send({ message: 'Error connecting to the database' });
+    } finally {
+        if (connection) {
+            try {
+                await connection.close();
+            } catch (err) {
+                console.error('Error closing connection: ', err);
+            }
+        }
+    }
+});
+
 //-----------------------------------------------------------------------------------------------------------------------------
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
