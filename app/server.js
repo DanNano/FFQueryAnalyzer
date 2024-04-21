@@ -90,6 +90,85 @@ app.get('/api/player-stats', async (req, res) => {
     }
   }
 });
+// Endpoint to get fantasy points per game for top players with stats available for at least 3 different years
+app.get('/api/top-players-stats', async (req, res) => {
+  let connection;
+  try {
+    connection = await oracledb.getConnection(dbConfig);
+    const result = await connection.execute(`
+      SELECT 
+          p.name,
+          p.playerid,
+          p.position,
+          ps.year,
+          ps.team,
+          ROUND((
+            (ps.passingyards * 0.04) + 
+            (ps.passingtds * 4) - 
+            (ps.intsthrown * 2) + 
+            (ps.rushingyards * 0.1) + 
+            (ps.rushingtds * 6) + 
+            (ps.receivingyards * 0.1) + 
+            (ps.receivingtds * 6) - 
+            (ps.rushingfumbles * 2) - 
+            (ps.receivingfumbles * 2)
+          ) / ps.gamesplayed, 2) AS fantasypointspergame
+      FROM 
+          DLAFORCE.player p
+      JOIN 
+          DLAFORCE.playerstats ps ON p.playerid = ps.playerid
+      WHERE 
+          p.playerid IN (
+              SELECT 
+                  p.playerid
+              FROM 
+                  DLAFORCE.player p
+              JOIN 
+                  DLAFORCE.playerstats ps ON p.playerid = ps.playerid
+              WHERE 
+                  ps.year = 2022
+                  AND p.playerid IN (
+                      SELECT 
+                          ps.playerid
+                      FROM 
+                          DLAFORCE.playerstats ps
+                      GROUP BY 
+                          ps.playerid
+                      HAVING 
+                          COUNT(DISTINCT ps.year) >= 3
+                  )
+              ORDER BY 
+                  ROUND((
+                    (ps.passingyards * 0.04) + 
+                    (ps.passingtds * 4) - 
+                    (ps.intsthrown * 2) + 
+                    (ps.rushingyards * 0.1) + 
+                    (ps.rushingtds * 6) + 
+                    (ps.receivingyards * 0.1) + 
+                    (ps.receivingtds * 6) - 
+                    (ps.rushingfumbles * 2) - 
+                    (ps.receivingfumbles * 2)
+                  ) / ps.gamesplayed, 2) DESC
+              FETCH FIRST 10 ROWS ONLY
+          )
+      ORDER BY 
+          p.playerid, ps.year
+    `, [], { outFormat: oracledb.OUT_FORMAT_OBJECT });
+    console.log(result);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error on database execution: ', err);
+    res.status(500).send({ message: 'Error connecting to the database' });
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error('Error closing connection: ', err);
+      }
+    }
+  }
+});
 // Endpoint to get player details by name, defaulting to 'Michael Thomas' if no name is provided
 app.get('/api/player-by-name', async (req, res) => {
   let connection;
@@ -167,7 +246,7 @@ app.get('/api/player-goalline-carry-percentage', async (req, res) => {
   let connection;
   try {
     connection = await oracledb.getConnection(dbConfig);
-    const playerId = req.query.id || '00-0034791'; // Default player ID if none provided
+    const playerId = req.query.playerid || '00-0034791'; // Default player ID if none provided
     const result = await connection.execute(`
       SELECT p.name, p.playerid, p.position, ps.year, ps.team, 
         TO_CHAR(ROUND((COUNT(CASE WHEN pl.playtype = 'run' AND pl.rushingplayerid = ps.playerid AND pl.yardline <= 5 THEN 1 END) / 
@@ -210,7 +289,7 @@ app.get('/api/player-snap-count', async (req, res) => {
       from dlaforce.player p
       join dlaforce.playersnapcounts psc on p.playerid = psc.playerid
       join dlaforce.playerstats ps on p.playerid = ps.playerid
-      where p.playerid = :playerId /* placeholder id, this will need to be fed into the query by the app */
+      where p.playerid = :playerId
       group by p.name, p.playerid, p.position, substr(psc.gameid, 1, 4), ps.team
       order by year
 
@@ -231,7 +310,6 @@ app.get('/api/player-snap-count', async (req, res) => {
     }
 });
 
-// Query4
 // Query5
 
 //-----------------------------------------------------------------------------------------------------------------------------
