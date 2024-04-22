@@ -21,8 +21,8 @@ function App() {
                 </div>
                 <div>
                     <h1 className="project-title">Fantasy Football Query Analyzer</h1>
-                    <p className="placeholder-text">DD EXPLANATION/DETAILS OF PROJECT HERE. Welcome to the Fantasy Football Query Analyzer. Please select a query
-                        to begin your analysis, or view the database info for more details on the data sources and methodology.
+                    <p className="placeholder-text">Welcome to the Fantasy Football Query Analyzer. Please select a query
+                        to begin your analysis, or view the database info for more details on the data sources.
                     </p>
                     <Routes>
                         <Route path="/query1" element={<Query1 />} />

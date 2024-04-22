@@ -285,13 +285,13 @@ app.get('/api/player-snap-count', async (req, res) => {
         connection = await oracledb.getConnection(dbConfig);
         const playerId = req.query.playerid || '00-0032765'; // Default player ID if none provided
         const result = await connection.execute(`
-      select p.name, p.playerid, p.position, substr(psc.gameid, 1, 4) as year, ps.team, to_char(round(sum(psc.snapcountpercentage * 100) / count(*), 2), '999.99') || '%' as snapcountpercentagepergame
-      from dlaforce.player p
-      join dlaforce.playersnapcounts psc on p.playerid = psc.playerid
-      join dlaforce.playerstats ps on p.playerid = ps.playerid
-      where p.playerid = :playerId
-      group by p.name, p.playerid, p.position, substr(psc.gameid, 1, 4), ps.team
-      order by year
+        select p.name, p.playerid, p.position, substr(psc.gameid, 1, 4) as year, ps.team, to_char(round(sum(psc.snapcountpercentage * 100) / count(*), 2), '999.99') || '%' as snapcountpercentagepergame
+        from dlaforce.player p
+        join dlaforce.playersnapcounts psc on p.playerid = psc.playerid
+        join dlaforce.playerstats ps on p.playerid = ps.playerid and substr(psc.gameid, 1, 4) = ps.year
+        where p.playerid = :playerId
+        group by p.name, p.playerid, p.position, substr(psc.gameid, 1, 4), ps.team
+        order by year        
 
     `, [playerId], { outFormat: oracledb.OUT_FORMAT_OBJECT });
         console.log(result);
