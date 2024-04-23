@@ -95,6 +95,7 @@ function Query5() {
     return (
         <div>
             <h1>Player Touchdown Percentage</h1>
+            <p>Player Touchdown Percentage is the percentage of a teams total touchdowns that are scored by a specific player. This statistic gives insight into how often this player capitalizes on opportunities to score high-volume fantasy points on a single play. A players touchdown percentage can be calculated as follows: <small>Number Of Touchdowns Scored / Total Number Of Touchdowns Scored By Team</small></p>
             <div>
                 <h2>Search Player by Name</h2>
                 <input
