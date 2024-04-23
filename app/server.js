@@ -357,13 +357,13 @@ app.get('/api/touchdown-percentage', async (req, res) => {
                 ps.Team,
                 TO_CHAR(ROUND((COUNT(CASE WHEN pl.tdplayerid = p.playerid THEN 1 END) / COUNT(CASE WHEN pl.tdplayerid IS NOT NULL THEN 1 END)) * 100, 2), '999.99') || '%' AS TouchdownPercentage
             FROM
-                Player p
+                dlaforce.Player p
             JOIN
-                PlayerStats ps ON p.PlayerID = ps.PlayerID
+                dlaforce.PlayerStats ps ON p.PlayerID = ps.PlayerID
             JOIN
-                Play pl ON ps.Team = pl.PossessingTeam AND SUBSTR(pl.GameID, 1, 4) = TO_CHAR(ps.Year)
+                dlaforce.Play pl ON ps.Team = pl.PossessingTeam AND SUBSTR(pl.GameID, 1, 4) = TO_CHAR(ps.Year)
             JOIN
-                Game g ON pl.GameID = g.GameID AND g.Year = :year
+                dlaforce.Game g ON pl.GameID = g.GameID AND g.Year = :year
             WHERE
                 ps.Year = :year
             GROUP BY
@@ -403,11 +403,11 @@ app.get('/api/topTargets', async (req, res) => {
             ROUND((COUNT(CASE WHEN pl.playtype = 'pass' AND pl.receivingplayerid = ps.playerid THEN 1 END) /
            COUNT(CASE WHEN pl.playtype = 'pass' THEN 1 END)) * 100, 2) AS targetsharepercentage
   FROM
-      Player p
+      dlaforce.Player p
   JOIN
-      PlayerStats ps ON p.playerid = ps.playerid
+      dlaforce.PlayerStats ps ON p.playerid = ps.playerid
     JOIN
-      Play pl ON pl.possessingteam = ps.team AND pl.gameid LIKE ps.year || '%'
+      dlaforce.Play pl ON pl.possessingteam = ps.team AND pl.gameid LIKE ps.year || '%'
     WHERE
     ps.year = :year AND
     pl.playtype = 'pass' -- Ensuring we only count passing plays
