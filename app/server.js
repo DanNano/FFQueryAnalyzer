@@ -343,6 +343,51 @@ app.get('/api/player-TD', async (req, res) => {
     }
 });
 
+app.get('/api/touchdown-percentage', async (req, res) => {
+    const year = req.query.year;
+    let connection;
+    try {
+        connection = await oracledb.getConnection(dbConfig);
+        const result = await connection.execute(`
+            SELECT
+                p.Name,
+                p.PlayerID,
+                p.Position,
+                ps.Year,
+                ps.Team,
+                TO_CHAR(ROUND((COUNT(CASE WHEN pl.tdplayerid = p.playerid THEN 1 END) / COUNT(CASE WHEN pl.tdplayerid IS NOT NULL THEN 1 END)) * 100, 2), '999.99') || '%' AS TouchdownPercentage
+            FROM
+                Player p
+            JOIN
+                PlayerStats ps ON p.PlayerID = ps.PlayerID
+            JOIN
+                Play pl ON ps.Team = pl.PossessingTeam AND SUBSTR(pl.GameID, 1, 4) = TO_CHAR(ps.Year)
+            JOIN
+                Game g ON pl.GameID = g.GameID AND g.Year = :year
+            WHERE
+                ps.Year = :year
+            GROUP BY
+                p.Name, p.PlayerID, p.Position, ps.Year, ps.Team
+            ORDER BY
+                TouchdownPercentage DESC
+            FETCH FIRST 10 ROWS ONLY
+        `, { year: parseInt(year) });
+        console.log(result);
+        res.json(result.rows);
+    } catch (err) {
+        console.error('Error on database execution: ', err);
+        res.status(500).send({ message: 'Error connecting to the database' });
+    } finally {
+        if (connection) {
+            try {
+                await connection.close();
+            } catch (err) {
+                console.error('Error closing connection: ', err);
+            }
+        }
+    }
+});
+
 //-----------------------------------------------------------------------------------------------------------------------------
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
