@@ -107,6 +107,7 @@ function Query3() {
     return (
         <div>
             <h1>Player Information and Target Share</h1>
+            <p>Player Target Share is the percentage of a teams total passes that are thrown to a specific player. This statistic gives insight into how often this player is involved in his teams passing attack and how often he receives opportunities to gain receiving yards. A players target share can be calculated as follows: <small>Number Of Passes Thrown To Player / Total Number of Passes Thrown By Team</small></p>
             <div>
                 <h2>Search Player by Name</h2>
                 <input
