@@ -12,17 +12,19 @@ function App() {
         <Router>
             <div className="App">
                 <div className="sidebar">
-                    <Link to="/query1" className="query-button">Query 1</Link>
-                    <Link to="/query2" className="query-button">Query 2</Link>
-                    <Link to="/query3" className="query-button">Query 3</Link>
-                    <Link to="/query4" className="query-button">Query 4</Link>
-                    <Link to="/query5" className="query-button">Query 5</Link>
+                    <Link to="/query1" className="query-button"><small>Fantasy Points Per Game</small></Link>
+                    <Link to="/query2" className="query-button"><small>Snap Count Percentage</small></Link>
+                    <Link to="/query3" className="query-button"><small>Target Share</small></Link>
+                    <Link to="/query4" className="query-button"><small>Goal Line Carry Percentage</small></Link>
+                    <Link to="/query5" className="query-button"><small>Touchdown Percentage</small></Link>
                     <Link to="/databaseinfo" className="query-button">Database Info</Link>
                 </div>
                 <div>
-                    <h1 className="project-title">Fantasy Football Query Analyzer</h1>
-                    <p className="placeholder-text">Welcome to the Fantasy Football Query Analyzer. Please select a query
-                        to begin your analysis, or view the database info for more details on the data sources.
+                    <h1 className="project-title">Fantasy Football Analytic Hub</h1>
+                    <p className="placeholder-text">Welcome to the Fantasy Football Analytics Hub. Please select an advanced stat of your choosing to begin your analysis, or view the database info for more details on the data sources.
+
+                        After clicking on the advanced stat needed for your inquiry, search for the player in question by typing his first and last name into the initial search bar. If a valid name is entered, the players ID number should populate in the space below the first search bar. Next, copy and paste the players ID number into the second search bar. This should generate a season-by-season trend-analysis graph for the player in question based off the specified stat. Enjoy!
+
                     </p>
                     <Routes>
                         <Route path="/query1" element={<Query1 />} />
