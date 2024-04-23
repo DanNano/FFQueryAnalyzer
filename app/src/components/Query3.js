@@ -1,18 +1,26 @@
 import React, { useState } from 'react';
-import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+import { Bar } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 
-// Register the components required for Line chart
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+// Register the components required for Bar chart
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 function Query3() {
     const [name, setName] = useState('');
     const [playerDetails, setPlayerDetails] = useState(null);
     const [error, setError] = useState('');
-
     const [playerId, setPlayerId] = useState('');
     const [targetData, setTargetData] = useState({});
     const [playerInfo, setPlayerInfo] = useState(null);
+    const [targetTop, setTargetTop] = useState({});
+    const [year, setYear] = useState(2022);
+
+    function getRandomColor() {
+        const r = Math.floor(Math.random() * 256);
+        const g = Math.floor(Math.random() * 256);
+        const b = Math.floor(Math.random() * 256);
+        return `rgba(${r}, ${g}, ${b}, 0.5)`;
+    }
 
     const fetchPlayerDetails = () => {
         fetch(`/api/player-by-name?name=${encodeURIComponent(name)}`)
@@ -55,9 +63,9 @@ function Query3() {
                         datasets: [{
                             label: 'Target Share Percentage',
                             data: dataPoints,
-                            fill: false,
-                            borderColor: 'rgb(75, 192, 192)',
-                            tension: 0.1
+                            backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1
                         }]
                     });
                 } else {
@@ -72,11 +80,33 @@ function Query3() {
             });
     };
 
+    const fetchTargetData = () => {
+        fetch(`/api/topTargets?year=${year}`)
+            .then(response => response.json())
+            .then(data => {
+                const chartData = {
+                    labels: data.map(d => d[0]), // Assuming the name is the first element
+                    datasets: [{
+                        label: 'Target Percentage',
+                        data: data.map(d => {
+                            // Parse and replace % as necessary
+                            const percentage = typeof d[5] === 'string' ? parseFloat(d[5].replace('%', '')) : d[5];
+                            return percentage;
+                        }),
+                        backgroundColor: data.map(() => getRandomColor()), // Generate a random color for each bar
+                        borderColor: data.map(() => 'rgba(0, 0, 0, 0.1)'), // Optional: specific border color for all
+                        borderWidth: 1
+                    }]
+                };
+                setTargetTop(chartData);
+            })
+            .catch(error => console.error('Error:', error));
+    };
+
+
     return (
         <div>
-            <h1>Player Target Share</h1>
-
-            {/* Search by Player Name */}
+            <h1>Player Information and Target Share</h1>
             <div>
                 <h2>Search Player by Name</h2>
                 <input
@@ -101,7 +131,6 @@ function Query3() {
                 </div>
             )}
 
-            {/* Input for Player ID and Fetch Button */}
             <div>
                 <input
                     type="text"
@@ -124,7 +153,28 @@ function Query3() {
             {targetData.labels && (
                 <div style={{ width: '70%', margin: 'auto' }}>
                     <h2>Target Share Percentage by Year and Team</h2>
-                    <Line data={targetData} />
+                    <Bar data={targetData} />
+                </div>
+            )}
+
+            <div>
+                <select value={year} onChange={(e) => setYear(e.target.value)}>
+                    {Array.from({ length: 11 }, (_, i) => 2012 + i).map(year => (
+                        <option key={year} value={year}>{year}</option>
+                    ))}
+                </select>
+                <button onClick={fetchTargetData}>Fetch Yearly Target Data</button>
+            </div>
+
+            {targetTop.labels && (
+                <div style={{ width: '70%', margin: 'auto' }}>
+                    <Bar data={targetTop} options={{
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }} />
                 </div>
             )}
         </div>
