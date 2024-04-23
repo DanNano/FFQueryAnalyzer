@@ -71,6 +71,7 @@ function Query2() {
     return (
         <div>
             <h1>Player Snap Count Percentage</h1>
+            <p>Player Snap Count Percentage is the percentage of the game a player is on the field for his team. This statistic gives insight into how often this player is utilized by his teams offense and how often he receives opportunities to potentially score fantasy points. A players snap count percentage can be calculated as follows: <small>Number Of Plays On The Field / (Number Of Plays On The Field + Number Of Plays On The Bench)</small></p>
             <div>
                 <h2>Search Player by Name</h2>
                 <input
