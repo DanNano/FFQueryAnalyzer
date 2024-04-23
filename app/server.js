@@ -388,6 +388,51 @@ app.get('/api/touchdown-percentage', async (req, res) => {
     }
 });
 
+app.get('/api/topTargets', async (req, res) => {
+    const year = req.query.year;
+    let connection;
+    try {
+        connection = await oracledb.getConnection(dbConfig);
+        const result = await connection.execute(`
+            SELECT
+            p.name,
+            p.playerid,
+            p.position,
+            ps.year,
+            ps.team,
+            ROUND((COUNT(CASE WHEN pl.playtype = 'pass' AND pl.receivingplayerid = ps.playerid THEN 1 END) /
+           COUNT(CASE WHEN pl.playtype = 'pass' THEN 1 END)) * 100, 2) AS targetsharepercentage
+  FROM
+      Player p
+  JOIN
+      PlayerStats ps ON p.playerid = ps.playerid
+    JOIN
+      Play pl ON pl.possessingteam = ps.team AND pl.gameid LIKE ps.year || '%'
+    WHERE
+    ps.year = :year AND
+    pl.playtype = 'pass' -- Ensuring we only count passing plays
+    GROUP BY
+    p.name, p.playerid, p.position, ps.year, ps.team
+    ORDER BY
+      targetsharepercentage DESC
+    FETCH FIRST 5 ROWS ONLY
+        `, { year: parseInt(year) });
+        console.log(result);
+        res.json(result.rows);
+    } catch (err) {
+        console.error('Error on database execution: ', err);
+        res.status(500).send({ message: 'Error connecting to the database' });
+    } finally {
+        if (connection) {
+            try {
+                await connection.close();
+            } catch (err) {
+                console.error('Error closing connection: ', err);
+            }
+        }
+    }
+});
+
 //-----------------------------------------------------------------------------------------------------------------------------
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
