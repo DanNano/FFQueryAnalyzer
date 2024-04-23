@@ -107,7 +107,7 @@ function Query1() {
     return (
         <div>
             <h1>Player Fantasy Points Per Game</h1>
-    
+            <p>Player Fantasy Points Per Game is the number of fantasy points an NFL player averages over the course of an entire season. This statistic gives insight into a players overall level of production and value on the field. A players fantasy points can be calculated as follows: <small>(Passing Yards * 0.04) + (Passing Touchdowns * 4) + (Rushing Yards * 0.1) + (Rushing Touchdowns * 6) + (Receiving Yards * 0.1) + (Receiving Touchdowns * 6) - (Interceptions * 2) - (Fumbles * 2)</small></p>
             {/* Search by Player Name */}
             <div>
                 <h2>Search Player by Name</h2>
