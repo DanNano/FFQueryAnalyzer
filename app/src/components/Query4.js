@@ -74,7 +74,7 @@ function Query4() {
     return (
         <div>
             <h1>Player Goal-Line Carry Percentage</h1>
-
+            <p>Player Goal-Line Carry Percentage is the percentage of a teams total rushing attempts at a depth of 5 yards or closer to the endzone that are given to a specific player. This statistic gives insight into how often this player is used by his teams offense in plays close to the end zone and how often he receives opportunities to score high-probability touchdowns. A players goal-line carry percentage can be calculated as follows: <small>Number Of Rushing Attempts 5 Yards Or Closer To End Zone / Total Number of Rushing Attempts 5 Yards Or Closer To End Zone By Team</small></p>
             {/* Search by Player Name */}
             <div>
                 <h2>Search Player by Name</h2>
